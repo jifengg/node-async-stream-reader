@@ -1,26 +1,26 @@
 {
-  "name": "node-async-stream-reader",
-  "version": "1.0.0",
-  "description": "A stream reader with asynchronous support, written in nodejs and supporting node environments.",
-  "main": "index.js",
-  "keywords": [
-    "async-stream-reader",
-    "stream-reader",
-    "stream",
-    "reader",
-    "async"
-  ],
-  "scripts": {
-    "test": "node test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jifengg/node-async-stream-reader.git"
-  },
-  "author": "jifengg",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/jifengg/node-async-stream-reader/issues"
-  },
-  "homepage": "https://github.com/jifengg/node-async-stream-reader#readme"
+    "name": "node-async-stream-reader",
+    "version": "1.0.1",
+    "description": "A stream reader with asynchronous support, written in nodejs and supporting node environments.",
+    "main": "index.js",
+    "keywords": [
+        "async-stream-reader",
+        "stream-reader",
+        "stream",
+        "reader",
+        "async"
+    ],
+    "scripts": {
+        "test": "node test.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jifengg/node-async-stream-reader.git"
+    },
+    "author": "jifengg",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/jifengg/node-async-stream-reader/issues"
+    },
+    "homepage": "https://github.com/jifengg/node-async-stream-reader#readme"
 }
