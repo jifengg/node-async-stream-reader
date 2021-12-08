@@ -29,7 +29,7 @@ class AsyncStreamReader {
      * @param size 要读取的字节数，如果为null则返回缓存区已读取的内容
      * @returns 返回null说明文件已经读取完毕
      */
-    async read(size);
+    async read(size): Promise<Buffer>;
     _stream: stream.Readable;
 }
 
