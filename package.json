@@ -1,6 +1,6 @@
 {
     "name": "node-async-stream-reader",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A stream reader with asynchronous support, written in nodejs and supporting node environments.",
     "main": "index.js",
     "keywords": [
