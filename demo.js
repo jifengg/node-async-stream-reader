@@ -25,5 +25,14 @@ async function readFileByLine() {
         console.log('line', i, line);
     }
 }
+
+async function readNumber() {
+    const reader = new AsyncStreamReader(fs.createReadStream('demo.js'));
+    console.log('readNumber:', await reader.readUInt8()); //c=99
+    console.log('readNumber:', await reader.readInt8()); //o=111
+    console.log('readNumber:', await reader.readInt16BE()); //ns=28275
+    console.log('readString:', '-->' + await reader.readString(5) + '<--'); //
+}
 readFileByBytes();
 readFileByLine();
+readNumber();

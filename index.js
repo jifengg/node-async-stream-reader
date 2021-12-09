@@ -125,15 +125,15 @@ AsyncStreamReader.prototype.readLine = function() {
  * @returns 返回null说明文件已经读取完毕
  */
 AsyncStreamReader.prototype.read = function(size) {
-    //判断流是否读取结束了
-    if (this._stream.readableEnded) {
-        // resolve(null);
-        return null;
-    }
-    if (this._buffer.length - this._position >= (size || 1)) {
-        return this.innerRead(size);
-    } else {
-        return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
+        //判断流是否读取结束了
+        if (this._stream.readableEnded) {
+            resolve(null);
+            return;
+        }
+        if (this._buffer.length - this._position >= (size || 1)) {
+            resolve(this.innerRead(size));
+        } else {
             this._buffer = this._buffer.slice(this._position);
             this._position = 0;
             this._readingSize = size || 0;
@@ -149,8 +149,8 @@ AsyncStreamReader.prototype.read = function(size) {
                     resolve(this.innerRead(size));
                 }
             };
-        });
-    }
+        }
+    });
 }
 
 /**
@@ -168,6 +168,48 @@ AsyncStreamReader.prototype.innerRead = function(size) {
     this._buffer.copy(buf, 0, this._position, this._position + size);
     this._position += size;
     return buf;
+}
+
+AsyncStreamReader.prototype.readString = function(len, encoding) {
+    return this.read(len).then((buf) => {
+        return buf.toString(encoding);
+    });
+}
+
+// 添加Buffer的方法
+const BufferReadMethods = {
+    readInt8: 1,
+    readUInt8: 1,
+    readInt16LE: 2,
+    readInt16BE: 2,
+    readUInt16LE: 2,
+    readUInt16BE: 2,
+    readInt32LE: 4,
+    readInt32BE: 4,
+    readUInt32LE: 4,
+    readUInt32BE: 4,
+    readFloatLE: 4,
+    readFloatBE: 4,
+    readDoubleLE: 8,
+    readDoubleBE: 8,
+    readInt64LE: 8,
+    readInt64BE: 8,
+    readUInt64LE: 8,
+    readUInt64BE: 8
+}
+
+for (const m in BufferReadMethods) {
+    if (Buffer.prototype.hasOwnProperty(m)) {
+        const len = BufferReadMethods[m];
+        (function() {
+            AsyncStreamReader.prototype[m] = function() {
+                console.log(this);
+                return this.read(len).then((buffer) => {
+                    return buffer && buffer[m]();
+                });
+            }
+        })(m, len);
+    }
 }
 
 module.exports = AsyncStreamReader;
