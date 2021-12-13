@@ -21,21 +21,58 @@ npm --save install node-async-stream-reader
 ## AsyncStreamReader(stream : stream.Readable)
 Constructs a new async stream reader from a stream.Readable.
 
-### read(size:Number):`Promise<Buffer>`
+### read(size:Number):`Promise<Buffer> | Buffer`
 
 read next `size` byte(s) from `stream`.if stream is `ended`,return null.
 
-### readLine():`Promise<string>`
+### readLine():`Promise<string> | string`
 
 read next line from `stream`.if stream is `ended`,return null.
 
 and all so,if it contain a `\r`,you must remove it by yourself.
 
-### readBySpliter(spliter:string):`Promise<string>`
+### readBySpliter(spliter:string):`Promise<string> | string`
 
 read next string from `stream`,which split by `spliter`.if stream is `ended`,return null.
 
 as you know,`readLine()` == `readBySpliter('\n')`.if your string contain '\r',you can use `readBySpliter('\r\n')` instead.
+
+### readInt(),readInt16LE() ... :`Promise<number> | number`
+
+Same as the `Read**()` method in `Buffer`.
+
+### readString(size:Number,encoding:BufferEncoding):`Promise<string> | string`
+
+read `size` byte and convert it to string,using `encoding`.if stream is `ended`,return null.
+
+# attention
+
+you can use all `read**()` method in an await way like:
+
+```js
+let data = await reader.read(4);
+let len = await reader.readInt8();
+```
+but when you use `read**()` in a loop,the `await` will be very slow.
+The solution is to determine the return value type and add await if it is Promise,like:
+
+```js
+const reader = new AsyncStreamReader(fs.createReadStream('/path/to/a/big/file'));
+//read 2 bytes each time
+while (true) {
+    //here do not use await
+    let buf = reader.read(2);
+    //add below code
+    if (buf instanceof Promise) {
+        buf = await buf;
+    }
+    if (buf == null) {
+        break;
+    } else {
+        len += buf.length;
+    }
+}
+```
 
 # demo
 
@@ -51,7 +88,10 @@ async function readFileByBytes() {
     let len = 0;
     while (true) {
         //size can be undefined.
-        const chunk = await reader.read();
+        let chunk = await reader.read();
+        if(chunk instanceof Promise) {
+            chunk = await chunk;
+        }
         if (chunk == null) {
             break;
         } else {
