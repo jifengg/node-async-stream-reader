@@ -2,17 +2,67 @@ const fs = require('fs');
 const AsyncStreamReader = require('./index');
 
 async function readFileByBytes() {
-    const reader = new AsyncStreamReader(fs.createReadStream('demo.js'));
+    let file = 'C:/workspace/node-wave-reader/test/10s.awf.json';
+    const reader = new AsyncStreamReader(fs.createReadStream(file));
     let len = 0;
+    console.time('readFileByBytes');
+    let count = 0;
     while (true) {
-        const chunk = await reader.read(10);
-        if (chunk == null) {
+        let buf = reader.read(2);
+        if (buf instanceof Promise) {
+            buf = await buf;
+        }
+        if (buf == null) {
             break;
         } else {
-            len += chunk.length;
+            len += buf.length;
+        }
+        count++;
+    }
+    console.timeEnd('readFileByBytes');
+    console.log('file length:', len, count);
+
+    console.time('readFileByBytes2');
+    count = 0;
+    let bufs = fs.readFileSync(file);
+    let position = 0;
+    let size = 2;
+    let len2 = 0;
+    while (true) {
+        // size = size || (bufs.length - position);
+        const chunk = bufs.slice(position, position + size)
+        position += chunk.length;
+        len2 += chunk.length;
+        count++;
+        if (position >= bufs.length) {
+            break;
         }
     }
-    console.log('file length:', len);
+    console.timeEnd('readFileByBytes2');
+    console.log('file length 2:', len2, count);
+
+    console.time('readFileByBytes3');
+    count = 0;
+    let fs2 = fs.createReadStream(file);
+    let len3 = 0;
+    fs2.on('data', (bufs) => {
+        let position = 0;
+        // fs2.pause();
+        while (true) {
+            const chunk = bufs.slice(position, position + 2)
+            position += chunk.length;
+            len3 += chunk.length;
+            count++;
+            if (position >= bufs.length) {
+                break;
+            }
+            // fs2.resume();
+        }
+    });
+    fs2.on('end', () => {
+        console.timeEnd('readFileByBytes3');
+        console.log('file length 3:', len3, count);
+    });
 }
 
 async function readFileByLine() {
@@ -34,5 +84,5 @@ async function readNumber() {
     console.log('readString:', '-->' + await reader.readString(5) + '<--'); //
 }
 readFileByBytes();
-readFileByLine();
-readNumber();
+// readFileByLine();
+// readNumber();

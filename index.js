@@ -125,31 +125,36 @@ AsyncStreamReader.prototype.readLine = function() {
  * @returns 返回null说明文件已经读取完毕
  */
 AsyncStreamReader.prototype.read = function(size) {
+    if (this._buffer.length - this._position >= (size || 1)) {
+        return this.innerRead(size);
+    }
     return new Promise((resolve, reject) => {
         //判断流是否读取结束了
         if (this._stream.readableEnded) {
             resolve(null);
             return;
         }
-        if (this._buffer.length - this._position >= (size || 1)) {
-            resolve(this.innerRead(size));
-        } else {
-            this._buffer = this._buffer.slice(this._position);
-            this._position = 0;
-            this._readingSize = size || 0;
-            this._stream.resume();
-            this._chunks.push(this._buffer);
-            this._readedSize = this._buffer.length;
-            this._readCB = (err) => {
-                this._readCB = null;
-                this._stream.pause();
-                if (err) {
-                    reject(err);
+        this._buffer = this._buffer.slice(this._position);
+        this._position = 0;
+        this._readingSize = size || 0;
+        // this._stream.resume();
+        this._chunks.push(this._buffer);
+        this._readedSize = this._buffer.length;
+        this._readCB = (err) => {
+            this._readCB = null;
+            // this._stream.pause();
+            if (err) {
+                reject(err);
+            } else {
+                //如果没有可以读取的数据，则返回null
+                if (this._buffer.length <= this._position) {
+                    resolve(null);
                 } else {
+                    size = size || (this._buffer.length - this._position);
                     resolve(this.innerRead(size));
                 }
-            };
-        }
+            }
+        };
     });
 }
 
@@ -160,20 +165,24 @@ AsyncStreamReader.prototype.read = function(size) {
  */
 AsyncStreamReader.prototype.innerRead = function(size) {
     //如果没有可以读取的数据，则返回null
-    if (this._buffer.length <= this._position) {
-        return null;
-    }
-    size = size || (this._buffer.length - this._position);
-    let buf = Buffer.alloc(Math.min(size, this._buffer.length - this._position));
-    this._buffer.copy(buf, 0, this._position, this._position + size);
+    // if (this._buffer.length <= this._position) {
+    //     return null;
+    // }
+    // size = size || (this._buffer.length - this._position);
+    let buf = this._buffer.slice(this._position, this._position + size);
     this._position += size;
     return buf;
 }
 
 AsyncStreamReader.prototype.readString = function(len, encoding) {
-    return this.read(len).then((buf) => {
-        return buf.toString(encoding);
-    });
+    let p = this.read(len);
+    if (p instanceof Promise) {
+        return p.then((buffer) => {
+            return buffer && buffer.toString(encoding);
+        });
+    } else {
+        return p && p.toString(encoding);
+    }
 }
 
 // 添加Buffer的方法
@@ -203,10 +212,14 @@ for (const m in BufferReadMethods) {
         const len = BufferReadMethods[m];
         (function() {
             AsyncStreamReader.prototype[m] = function() {
-                console.log(this);
-                return this.read(len).then((buffer) => {
-                    return buffer && buffer[m]();
-                });
+                let p = this.read(len);
+                if (p instanceof Promise) {
+                    return p.then((buffer) => {
+                        return buffer && buffer[m]();
+                    });
+                } else {
+                    return p[m]();
+                }
             }
         })(m, len);
     }

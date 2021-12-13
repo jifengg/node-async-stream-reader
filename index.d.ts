@@ -29,23 +29,23 @@ class AsyncStreamReader {
      * @param size 要读取的字节数，如果为null则返回缓存区已读取的内容
      * @returns 返回null说明文件已经读取完毕
      */
-    read(size): Promise<Buffer>;
+    read(size): Promise<Buffer> | Buffer;
 
-    readUInt8(): Promise<number>;
-    readUInt16LE(): Promise<number>;
-    readUInt16BE(): Promise<number>;
-    readUInt32LE(): Promise<number>;
-    readUInt32BE(): Promise<number>;
-    readInt8(): Promise<number>;
-    readInt16LE(): Promise<number>;
-    readInt16BE(): Promise<number>;
-    readInt32LE(): Promise<number>;
-    readInt32BE(): Promise<number>;
-    readFloatLE(): Promise<number>;
-    readFloatBE(): Promise<number>;
-    readDoubleLE(): Promise<number>;
-    readDoubleBE(): Promise<number>;
-    readString(byteCount: number, encoding?: BufferEncoding): Promise<string>;
+    readUInt8(): Promise<number> | number;
+    readUInt16LE(): Promise<number> | number;
+    readUInt16BE(): Promise<number> | number;
+    readUInt32LE(): Promise<number> | number;
+    readUInt32BE(): Promise<number> | number;
+    readInt8(): Promise<number> | number;
+    readInt16LE(): Promise<number> | number;
+    readInt16BE(): Promise<number> | number;
+    readInt32LE(): Promise<number> | number;
+    readInt32BE(): Promise<number> | number;
+    readFloatLE(): Promise<number> | number;
+    readFloatBE(): Promise<number> | number;
+    readDoubleLE(): Promise<number> | number;
+    readDoubleBE(): Promise<number> | number;
+    readString(byteCount: number, encoding?: BufferEncoding): Promise<string> | string;
     _stream: stream.Readable;
 }
 

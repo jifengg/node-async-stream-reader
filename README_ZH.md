@@ -21,20 +21,57 @@ npm --save install node-async-stream-reader
 
 构造一个以stream.Readable为来源的异步流读取器。
 
-### read(size:Number):`Promise<Buffer>`
+### read(size:Number):`Promise<Buffer> | Buffer`
 
 读取下一个`size`字节，如果流已经结束，则返回null。
 
-### readLine():`Promise<string>`
+### readLine():`Promise<string> | string`
 
 读取下一行，如果流已经结束，则返回null。
 
 并且，如果它包含一个`\r`，你必须自己去掉它。
 
-### readBySpliter(spliter:string):`Promise<string>`
+### readBySpliter(spliter:string):`Promise<string> | string`
 
 读取下一个字符串，以`spliter`为分隔符。如果流已经结束，则返回null。
 如你所见，`readLine()` == `readBySpliter('\n')`。如果你的字符串包含`\r`，你可以使用`readBySpliter('\r\n')`来代替。
+
+### readInt(),readInt16LE() ... :`Promise<number> | number`
+
+和`Buffer`的`Read**()`方法一样。
+
+### readString(size:Number,encoding:BufferEncoding):`Promise<string> | string`
+
+读取`size`个字节，并使用`encoding`转换为字符串。如果流已经结束，则返回null。
+
+# 注意
+
+你可以对所有 `read**()` 方法使用`await`:
+
+```js
+let data = await reader.read(4);
+let len = await reader.readInt8();
+```
+
+但是，当你在循环中使用`read**()`时，`await`将会很慢。解决方法是，如果返回值是Promise，则加上await，如：
+
+```js
+const reader = new AsyncStreamReader(fs.createReadStream('/path/to/a/big/file'));
+//每次读取2个字节
+while (true) {
+    //这里不要使用await
+    let buf = reader.read(2);
+    //添加以下代码
+    if (buf instanceof Promise) {
+        buf = await buf;
+    }
+    if (buf == null) {
+        break;
+    } else {
+        len += buf.length;
+    }
+}
+```
 
 # 示例
 

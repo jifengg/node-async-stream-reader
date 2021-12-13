@@ -1,6 +1,6 @@
 {
     "name": "node-async-stream-reader",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "description": "A stream reader with asynchronous support, written in nodejs and supporting node environments.",
     "main": "index.js",
     "keywords": [
@@ -22,5 +22,10 @@
     "bugs": {
         "url": "https://github.com/jifengg/node-async-stream-reader/issues"
     },
-    "homepage": "https://github.com/jifengg/node-async-stream-reader#readme"
+    "homepage": "https://github.com/jifengg/node-async-stream-reader#readme",
+    "files": [
+        "index.js",
+        "index.d.ts",
+        "README_ZH.md"
+    ]
 }
